@@ -162,12 +162,12 @@ namespace ModeConnecte
         /// Echange des données entre les TextBoxs et un objet Fournisseur
         /// </summary>
         /// <param name="unFournisseur"></param>
-        /// <param name="datasDirection"></param>
-        private void DoExchangeDatas(ref DataTable table, ExchangeDirection datasDirection)
+        /// <param name="direction"></param>
+        private void DoExchangeDatas(ref DataTable table, ExchangeDirection direction)
         {
             foreach (DataColumn column in table.Columns)
             {
-                switch (datasDirection)
+                switch (direction)
                 {
                     // Fournisseur => TextBoxs
                     case ExchangeDirection.GET:
@@ -282,7 +282,7 @@ namespace ModeConnecte
 
                 // On ne doit pas arriver ici
                 default:
-                    break;
+                    throw new InvalidOperationException();
             }
         }
 

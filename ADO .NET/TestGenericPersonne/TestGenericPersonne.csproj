@@ -34,10 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +43,7 @@
     <Compile Include="TestGenericComposite.cs" />
     <Compile Include="TestGenericConfiguration.cs" />
     <Compile Include="TestGenericSerializationXML.cs" />
+    <Compile Include="TestGenericState.cs" />
     <Compile Include="TestGenericVisitor.cs" />
     <Compile Include="Title.cs" />
   </ItemGroup>

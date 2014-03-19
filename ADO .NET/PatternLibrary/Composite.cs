@@ -53,7 +53,7 @@ namespace PatternLibrary
         }
 
         /// <summary>
-        /// Méthode éxécutée par le Pattern Visiteur
+        /// Méthode exécutée par le Pattern Visiteur
         /// </summary>
         /// <param name="visitor"></param>
         public override void Accept(IVisitor visitor)

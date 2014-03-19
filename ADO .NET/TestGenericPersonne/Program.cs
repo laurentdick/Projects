@@ -13,6 +13,7 @@ namespace TestGenericPersonne
             //TestGenericVisitor.Test();
             TestGenericComposite.Test();
             //TestGenericSerializationXML.Test();
+            //TestGenericState.Test();
 
             WriteLine("Fin du programme.");
             Console.Read();
