@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ModeDeconnecte.ModeDeconnecteForm">
+    <Position X="0.5" Y="1.25" Width="3" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="ModeDeconnecte.ModeDeconnecteForm.DataExchangeDir" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>ModeDeconnecteForm.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAABAQACICFQAAARAKOBIAQLRAAAAAciAIEBwABEABA=</HashCode>
+      <FileName>ModeDeconnecteForm.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="papyrusDataSet1" />
+      <Field Name="produitTableAdapter1" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="ModeDeconnecte.PapyrusDataSet">
+    <Position X="8.25" Y="1.5" Width="2.75" />
+    <NestedTypes>
+      <Delegate Name="ModeDeconnecte.PapyrusDataSet.PRODUITRowChangeEventHandler" Collapsed="true">
+        <TypeIdentifier />
+      </Delegate>
+      <Class Name="ModeDeconnecte.PapyrusDataSet.PRODUITDataTable" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="ModeDeconnecte.PapyrusDataSet.PRODUITRow" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+      <Class Name="ModeDeconnecte.PapyrusDataSet.PRODUITRowChangeEvent" Collapsed="true">
+        <TypeIdentifier />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAwAAAAJABAAAQAAAAAgKQBgAAAAAAAGABBA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModeDeconnecte.PapyrusDataSetTableAdapters.PRODUITTableAdapter">
+    <Position X="5.5" Y="0.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>EASAAGAAEAAAAAcAIAAAAAAAACEICAAAAAAAAAAABBA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
