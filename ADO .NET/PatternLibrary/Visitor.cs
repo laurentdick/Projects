@@ -6,6 +6,8 @@ namespace PatternLibrary
     /// </summary>
     public interface IElement
     {
+        string Name { get; }
+
         void Accept(IVisitor visitor);
     }
 
@@ -14,17 +16,8 @@ namespace PatternLibrary
     /// </summary>
     public interface IVisitor
     {
-        void Visit(IElement element);
-    }
+        string Name { get; }
 
-    /// <summary>
-    /// Classe Abstraite d'un élément à visiter
-    /// </summary>
-    public abstract class Element : IElement
-    {
-        public virtual void Accept(IVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
+        void Visit(IElement element);
     }
 }

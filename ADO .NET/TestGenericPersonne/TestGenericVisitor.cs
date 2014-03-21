@@ -5,9 +5,13 @@ using PatternLibrary;
 
 namespace TestGenericPersonne
 {
-    class ConcreteElement : Element
+    class ConcreteElement : IElement
     {
         public string Name { get; set; }
+
+        public void Accept(IVisitor visitor)
+        {
+        }
     }
 
     class ConcreteVisitor : IVisitor
@@ -23,6 +27,8 @@ namespace TestGenericPersonne
     public class ObjectStructure : IElement
     {
         protected IList elements;
+
+        public string Name { get; set; }
 
         public ObjectStructure()
         {
