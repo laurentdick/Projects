@@ -34,7 +34,7 @@ namespace TestGenericPersonne
         public override void Visit(IElement element)
         {
             Console.WriteLine(
-                //" visité par \"{0}\"", Name
+                // " -> visité par \"{0}\"", Name
             );
         }
     }
@@ -48,15 +48,15 @@ namespace TestGenericPersonne
         {
             new Title("Test Generic Composite");
 
-            Composite composite = new ConcreteComposite()
+            IElement compositeElement = new ConcreteComposite()
             {
                 Name = "C:",
-                SubComponents = new Composant[]
+                SubComponents = new IElement[]
                 {
                     new ConcreteComposite()
                     {
                         Name = "Program Files (x86)",
-                        SubComponents = new Composant[]
+                        SubComponents = new IElement[]
                         {
                             new ConcreteComposant()   { Name = "Internet Explorer" },
                         }
@@ -64,7 +64,7 @@ namespace TestGenericPersonne
                     new ConcreteComposite()
                     {
                         Name = "Program Files",
-                        SubComponents = new Composant[]
+                        SubComponents = new IElement[]
                         {
                             new ConcreteComposant()   { Name = "Windows Defender" },
                             new ConcreteComposant()   { Name = "Windows NT" },
@@ -73,7 +73,7 @@ namespace TestGenericPersonne
                     new ConcreteComposite()
                     {
                         Name = "Windows",
-                        SubComponents = new Composant[]
+                        SubComponents = new IElement[]
                         {
                             new ConcreteComposant()   { Name = "System" },
                             new ConcreteComposant()   { Name = "System32" },
@@ -83,7 +83,7 @@ namespace TestGenericPersonne
                 }
             };
 
-            composite.Accept(new ConcreteCompositeVisitor() { Name = "Visiteur A" });
+            compositeElement.Accept(new ConcreteCompositeVisitor() { Name = "Visiteur A" });
 
             new Title("Fin Test Generic Composite");
         }
