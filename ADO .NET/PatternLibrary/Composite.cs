@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 
 namespace PatternLibrary
 {
     /// <summary>
     /// Classe abstraite d'un Elément Composant
     /// </summary>
-    public abstract class Composant : Element
+    public abstract class Composant : IElement
     {
         /// <summary>
         /// Profondeur d'imbrication du Composant dans la hiérarchie du Composite
@@ -21,10 +21,10 @@ namespace PatternLibrary
         /// Méthode d'appel du Visiteur
         /// </summary>
         /// <param name="visitor"></param>
-        public override void Accept(IVisitor visitor)
+        public virtual void Accept(IVisitor visitor)
         {
             DoOperation();
-            base.Accept(visitor);
+            visitor.Visit(this);
         }
 
         /// <summary>
@@ -41,12 +41,12 @@ namespace PatternLibrary
         /// <summary>
         /// Liste des Composants du Pattern Composite
         /// </summary>
-        private IList elements = new ArrayList();
+        private IList<IElement> elements = new List<IElement>();
 
         /// <summary>
         /// Accesseur de la liste des Composants
         /// </summary>
-        public IList SubComponents
+        public IList<IElement> SubComponents
         {
             get { return elements; }
             set { elements = value; }
