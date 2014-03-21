@@ -2,22 +2,26 @@
 namespace PatternLibrary
 {
     /// <summary>
-    /// Interface Element à visiter
+    /// Interface de classe avec propriété Name
     /// </summary>
-    public interface IElement
+    public interface IName
     {
         string Name { get; }
+    }
 
+    /// <summary>
+    /// Interface Element à visiter
+    /// </summary>
+    public interface IElement : IName
+    {
         void Accept(IVisitor visitor);
     }
 
     /// <summary>
     /// Interface du Visiteur d'élément
     /// </summary>
-    public interface IVisitor
+    public interface IVisitor: IName
     {
-        string Name { get; }
-
         void Visit(IElement element);
     }
 }
