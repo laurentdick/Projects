@@ -1,40 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
   <Class Name="TestGenericPersonne.ConcreteComposant">
-    <Position X="3.25" Y="5.25" Width="2.25" />
+    <Position X="3.5" Y="5.25" Width="2.25" />
+    <InheritanceLine Type="PatternLibrary.Composant" ManuallyRouted="true">
+      <Path>
+        <Point X="5.625" Y="2.315" />
+        <Point X="5.625" Y="2.833" />
+        <Point X="4.625" Y="2.833" />
+        <Point X="4.625" Y="5.25" />
+      </Path>
+    </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAA=</HashCode>
       <FileName>TestGenericComposite.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TestGenericPersonne.ConcreteCompositeVisitor" BaseTypeListCollapsed="true">
-    <Position X="10" Y="5.25" Width="2.75" />
+    <Position X="0.5" Y="5.25" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>TestGenericComposite.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="TestGenericPersonne.ConcreteComposite">
-    <Position X="0.5" Y="5.25" Width="2.25" />
+    <Position X="6" Y="5.25" Width="2.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAA=</HashCode>
       <FileName>TestGenericComposite.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="PatternLibrary.Composant">
-    <Position X="1.75" Y="0.5" Width="2.25" />
+    <Position X="4.5" Y="0.5" Width="2.25" />
     <Members>
       <Method Name="Composant" Hidden="true" />
     </Members>
     <Compartments>
-      <Compartment Name="Properties" Collapsed="true" />
       <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
     </Compartments>
     <TypeIdentifier />
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="PatternLibrary.CompositeVisitor">
-    <Position X="10.25" Y="0.5" Width="2.25" />
+    <Position X="0.75" Y="0.5" Width="2.25" />
     <Members>
       <Method Name="CompositeVisitor" Hidden="true" />
     </Members>
@@ -45,25 +53,33 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="PatternLibrary.Composite">
-    <Position X="0.5" Y="3.25" Width="2.25" />
+    <Position X="6" Y="3.25" Width="2.25" />
     <Members>
       <Method Name="Composite" Hidden="true" />
     </Members>
-    <Compartments>
-      <Compartment Name="Properties" Collapsed="true" />
-    </Compartments>
     <TypeIdentifier />
+    <ShowAsCollectionAssociation>
+      <Property Name="SubComponents" />
+    </ShowAsCollectionAssociation>
   </Class>
   <Interface Name="PatternLibrary.IVisitor">
-    <Position X="4.75" Y="2.25" Width="2.25" />
+    <Position X="13.25" Y="3.25" Width="2.25" />
     <TypeIdentifier />
   </Interface>
   <Interface Name="PatternLibrary.IElement">
-    <Position X="7.5" Y="2.25" Width="2.25" />
+    <Position X="10.75" Y="3.25" Width="2.25" />
+    <InheritanceLine Type="PatternLibrary.IName" ManuallyRouted="true">
+      <Path>
+        <Point X="13.25" Y="1.603" />
+        <Point X="13.25" Y="2.635" />
+        <Point X="11.875" Y="2.635" />
+        <Point X="11.875" Y="3.25" />
+      </Path>
+    </InheritanceLine>
     <TypeIdentifier />
   </Interface>
-  <Interface Name="PatternLibrary.IName" Collapsed="true">
-    <Position X="6.5" Y="0.5" Width="1.5" />
+  <Interface Name="PatternLibrary.IName">
+    <Position X="12.25" Y="0.5" Width="2" />
     <TypeIdentifier />
   </Interface>
   <Font Name="Segoe UI" Size="9" />
