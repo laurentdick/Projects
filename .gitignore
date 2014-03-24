@@ -7,6 +7,7 @@
 
 # User-specific files
 *.suo
+*.v11.suo
 *.user
 *.sln.docstates
 
@@ -69,7 +70,7 @@ publish/
 
 # NuGet Packages Directory
 ## TODO: If you have NuGet Package Restore enabled, uncomment the next line
-#packages/
+packages/
 
 # Windows Azure Build Output
 csx
