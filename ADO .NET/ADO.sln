@@ -102,13 +102,13 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VSCustomBkgrdPaint = True
-		VSUseSystemFonts = False
-		VSSkinToggleButtons = True
-		VSSkinFlatStyles = True
-		VSTextShadow = True
-		VSToolStripStyle = Mixed
-		VSTargetControls = None
 		VSStyle = OSX (Leopard).vssf
+		VSTargetControls = None
+		VSToolStripStyle = Mixed
+		VSTextShadow = True
+		VSSkinFlatStyles = True
+		VSSkinToggleButtons = True
+		VSUseSystemFonts = False
+		VSCustomBkgrdPaint = True
 	EndGlobalSection
 EndGlobal
