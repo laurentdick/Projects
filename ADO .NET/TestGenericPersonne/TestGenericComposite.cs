@@ -5,37 +5,31 @@ using PatternLibrary;
 namespace TestGenericPersonne
 {
     /// <summary>
-    /// Classe de Composant
+    /// Class concrète de Composant
     /// </summary>
     class ConcreteComposant : Composant
     {
-        protected override void DoOperation()
-        {
-            Console.Write("".PadLeft(depth * 2) + "\"{0}\"", Name);
-        }
     }
 
     /// <summary>
-    /// Classe Composite
+    /// Class concrète de Composite
     /// </summary>
     class ConcreteComposite : Composite
     {
-        protected override void DoOperation()
-        {
-            Console.Write("".PadLeft(depth * 2) + "\"{0}\"", Name);
-        }
     }
 
     /// <summary>
-    /// Classe Visiteur du Composite
+    /// Classe concrète de Visiteur de Composite
     /// </summary>
     class ConcreteCompositeVisitor : CompositeVisitor
     {
+        /// <summary>
+        /// Méthode appelée à chaque visite d'un Composant
+        /// </summary>
+        /// <param name="element"></param>
         public override void Visit(IElement element)
         {
-            Console.WriteLine(
-                // " -> visité par \"{0}\"", Name
-            );
+            Console.WriteLine("".PadLeft((element as Composant).Depth * 2) + "\"{0}\"", element.Name);
         }
     }
 
@@ -48,7 +42,7 @@ namespace TestGenericPersonne
         {
             new Title("Test Generic Composite");
 
-            IElement compositeElement = new ConcreteComposite()
+            IElement rootElement = new ConcreteComposite()
             {
                 Name = "C:",
                 SubComponents = new IElement[]
@@ -59,7 +53,7 @@ namespace TestGenericPersonne
                         SubComponents = new IElement[]
                         {
                             new ConcreteComposant()   { Name = "Internet Explorer" },
-                        }
+                        },
                     },
                     new ConcreteComposite()
                     {
@@ -68,22 +62,35 @@ namespace TestGenericPersonne
                         {
                             new ConcreteComposant()   { Name = "Windows Defender" },
                             new ConcreteComposant()   { Name = "Windows NT" },
-                        }
+                        },
                     },
                     new ConcreteComposite()
                     {
                         Name = "Windows",
                         SubComponents = new IElement[]
                         {
-                            new ConcreteComposant()   { Name = "System" },
+                            new ConcreteComposite()
+                            {
+                                Name = "System",
+                                SubComponents = new IElement[]
+                                {
+                                    new ConcreteComposite()   {
+                                        Name = "Drivers",
+                                        SubComponents = new IElement[]
+                                        {
+                                            new ConcreteComposite()   { Name = "Etc" },
+                                        },
+                                    },
+                                },
+                            },
                             new ConcreteComposant()   { Name = "System32" },
                             new ConcreteComposant()   { Name = "SysWOW64" },
-                        }
+                        },
                     },
-                }
+                },
             };
 
-            compositeElement.Accept(new ConcreteCompositeVisitor() { Name = "Visiteur A" });
+            rootElement.Accept(new ConcreteCompositeVisitor() { Name = "Visiteur A" });
 
             new Title("Fin Test Generic Composite");
         }

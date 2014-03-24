@@ -2,6 +2,50 @@
 
 namespace PatternLibrary
 {
+    public interface IComposantInfo : IName
+    {
+        int Depth { get; }
+    }
+
+    public class ComposantInfo : IComposantInfo
+    {
+        public int Depth { get; private set; }
+        public string Name { get; private set; }
+
+        public ComposantInfo(Composant composant)
+        {
+            Name = composant.Name;
+            Depth = composant.Depth;
+        }
+    }
+
+    /// <summary>
+    /// Classe de paramètres du gestionnaire d'évènement
+    /// </summary>
+    public class VisitedEventArgs
+    {
+        public IComposantInfo ComposantInfo { get; private set; }
+        public IVisitor Visitor { get; private set; }
+
+        /// <summary>
+        /// Constructeur par défaut
+        /// </summary>
+        /// <param name="composant"></param>
+        /// <param name="visitor"></param>
+        public VisitedEventArgs(Composant composant, IVisitor visitor)
+        {
+            ComposantInfo = new ComposantInfo(composant);
+            Visitor = visitor;
+        }
+    }
+
+    /// <summary>
+    /// Signature du délégué du gestionnaire d'évènement
+    /// </summary>
+    /// <param name="element"></param>
+    /// <param name="visitor"></param>
+    public delegate void VisitedEventHandler(VisitedEventArgs e);
+
     /// <summary>
     /// Classe abstraite d'un Elément Composant
     /// </summary>
@@ -13,9 +57,35 @@ namespace PatternLibrary
         protected static int depth = 0;
 
         /// <summary>
+        /// Accesseur de champ profondeur d'imbrication de l'élément
+        /// </summary>
+        public int Depth { get { return depth; } private set { depth = value; } }
+
+        /// <summary>
         /// Nom du Composant
         /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Gestionnaire d'évènement
+        /// </summary>
+        public event VisitedEventHandler OnVisitedEventHandler;
+
+        /// <summary>
+        /// Constructeur par défaut
+        /// </summary>
+        public Composant()
+        {
+        }
+
+        /// <summary>
+        /// Constructeur paramétré
+        /// </summary>
+        /// <param name="handler"></param>
+        public Composant(VisitedEventHandler handler)
+        {
+            OnVisitedEventHandler += handler;
+        }
 
         /// <summary>
         /// Méthode d'appel du Visiteur
@@ -23,14 +93,20 @@ namespace PatternLibrary
         /// <param name="visitor"></param>
         public virtual void Accept(IVisitor visitor)
         {
-            DoOperation();
+            OnVisited(visitor);
             visitor.Visit(this);
         }
 
         /// <summary>
-        /// Méthode abstraite à personnaliser d'un Composant
+        /// Méthode virtuelle de visite d'un Composant
         /// </summary>
-        protected abstract void DoOperation();
+        protected virtual void OnVisited(IVisitor visitor)
+        {
+            if (OnVisitedEventHandler != null)
+            {
+                OnVisitedEventHandler(new VisitedEventArgs(this, visitor));
+            }
+        }
     }
 
     /// <summary>
@@ -41,7 +117,7 @@ namespace PatternLibrary
         /// <summary>
         /// Liste des Composants du Pattern Composite
         /// </summary>
-        private IList<IElement> elements = new List<IElement>();
+        private IList<IElement> elements;
 
         /// <summary>
         /// Accesseur de la liste des Composants
@@ -50,6 +126,24 @@ namespace PatternLibrary
         {
             get { return elements; }
             set { elements = value; }
+        }
+
+        /// <summary>
+        /// Constructeur par défaut
+        /// </summary>
+        public Composite()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        /// Constructeur paramétré
+        /// </summary>
+        /// <param name="handler"></param>
+        public Composite(VisitedEventHandler handler)
+            : base(handler)
+        {
+            elements = new List<IElement>();
         }
 
         /// <summary>
@@ -62,9 +156,12 @@ namespace PatternLibrary
 
             depth++;
 
-            foreach (IElement element in elements)
+            if (elements != null)
             {
-                element.Accept(visitor);
+                foreach (IElement element in elements)
+                {
+                    element.Accept(visitor);
+                }
             }
 
             depth--;
