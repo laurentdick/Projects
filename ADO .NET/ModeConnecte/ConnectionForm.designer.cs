@@ -48,7 +48,7 @@
             this.lbl_Security = new System.Windows.Forms.Label();
             this.cbx_Security = new System.Windows.Forms.ComboBox();
             this.lbl_TablePrefix = new System.Windows.Forms.Label();
-            this.tbx_TablePrefix = new System.Windows.Forms.TextBox();
+            this.tbx_Schema = new System.Windows.Forms.TextBox();
             this.btn_Lire = new System.Windows.Forms.Button();
             this.menuBar = new System.Windows.Forms.MenuStrip();
             this.rechercheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -232,16 +232,16 @@
             this.lbl_TablePrefix.ForeColor = System.Drawing.Color.Blue;
             this.lbl_TablePrefix.Location = new System.Drawing.Point(20, 96);
             this.lbl_TablePrefix.Name = "lbl_TablePrefix";
-            this.lbl_TablePrefix.Size = new System.Drawing.Size(87, 13);
+            this.lbl_TablePrefix.Size = new System.Drawing.Size(49, 13);
             this.lbl_TablePrefix.TabIndex = 14;
-            this.lbl_TablePrefix.Text = "Préfixe de Table:";
+            this.lbl_TablePrefix.Text = "Schéma:";
             // 
-            // tbx_TablePrefix
+            // tbx_Schema
             // 
-            this.tbx_TablePrefix.Location = new System.Drawing.Point(172, 93);
-            this.tbx_TablePrefix.Name = "tbx_TablePrefix";
-            this.tbx_TablePrefix.Size = new System.Drawing.Size(203, 20);
-            this.tbx_TablePrefix.TabIndex = 3;
+            this.tbx_Schema.Location = new System.Drawing.Point(172, 93);
+            this.tbx_Schema.Name = "tbx_Schema";
+            this.tbx_Schema.Size = new System.Drawing.Size(203, 20);
+            this.tbx_Schema.TabIndex = 3;
             // 
             // btn_Lire
             // 
@@ -324,7 +324,7 @@
             this.Controls.Add(this.cbx_Security);
             this.Controls.Add(this.btn_Quitter);
             this.Controls.Add(this.btn_Disconnect);
-            this.Controls.Add(this.tbx_TablePrefix);
+            this.Controls.Add(this.tbx_Schema);
             this.Controls.Add(this.tbx_BaseDonnees);
             this.Controls.Add(this.tbx_Serveur);
             this.Controls.Add(this.lbl_Security);
@@ -371,7 +371,7 @@
         private System.Windows.Forms.Label lbl_Security;
         private System.Windows.Forms.ComboBox cbx_Security;
         private System.Windows.Forms.Label lbl_TablePrefix;
-        private System.Windows.Forms.TextBox tbx_TablePrefix;
+        private System.Windows.Forms.TextBox tbx_Schema;
         private System.Windows.Forms.Button btn_Lire;
         private System.Windows.Forms.MenuStrip menuBar;
         private System.Windows.Forms.ToolStripMenuItem rechercheToolStripMenuItem;

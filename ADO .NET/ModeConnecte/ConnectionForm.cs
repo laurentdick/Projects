@@ -8,7 +8,6 @@ using System.Windows.Forms;
 
 using ClassMetierLibrary;
 
-
 namespace ModeConnecte
 {
     public partial class ConnectionForm : Form
@@ -88,6 +87,22 @@ namespace ModeConnecte
         }
 
         /// <summary>
+        /// Formatage du nom de schéma  à utiliser
+        /// </summary>
+        /// <returns></returns>
+        private string GetSchema()
+        {
+            string result = "";
+
+            if (tbx_Schema.TextLength > 0)
+            {
+                result = tbx_Schema.Text + '.';
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Initialisation avant affichage formulaire
         /// </summary>
         /// <param name="sender"></param>
@@ -96,6 +111,13 @@ namespace ModeConnecte
         {
             ts_MenuFournisseur.Tag = typeof(FournisseurForm);
             ts_MenuListeDesCommandes.Tag = typeof(CommandesForm);
+
+            cbx_DriverSelect.Items.Clear();
+
+            foreach (string dbDriverName in ConfigurationManager.AppSettings)
+            {
+                cbx_DriverSelect.Items.Add(dbDriverName);
+            }
 
             cbx_DriverSelect.SelectedIndex = 0;
             cbx_DriverSelect.Focus();
@@ -121,16 +143,28 @@ namespace ModeConnecte
         /// <param name="e"></param>
         private void cbx_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string driver = (cbx_DriverSelect.SelectedIndex == 0) ? "dbPapyrusSqlServer" : "dbPapyrusOdbcMySql";
-            factory = ConfigurationManager.AppSettings[
-                        (cbx_DriverSelect.SelectedIndex == 0) ? "factorySqlServer" : "factoryMySql"];
+            string driver = null;
+            switch (cbx_DriverSelect.SelectedIndex)
+            {
+                case 0:
+                    driver = "dbPapyrusSqlServer";
+                    break;
+                case 1:
+                    driver = "dbPapyrusOdbcMySql";
+                    break;
+                case 2:
+                    driver = "dbPapyrusPostgres";
+                    break;
+            }
+
+            factory = ConfigurationManager.AppSettings[cbx_DriverSelect.SelectedIndex];
             dbProviderFactory = DbProviderFactories.GetFactory(factory);
 
             ConnectionStringSettings oConfig = ConfigurationManager.ConnectionStrings[driver];
             DbConnectionStringBuilder oBuilder = new DbConnectionStringBuilder();
 
             connectionString = oConfig.ConnectionString;
-            tbx_TablePrefix.Text = "";
+            tbx_Schema.Text = "";
 
             if (oConfig != null)
             {
@@ -146,6 +180,12 @@ namespace ModeConnecte
                         cbx_Security.Enabled = true;
                         break;
                     case 1:
+                        tbx_Serveur.Text = oBuilder["server"].ToString();
+                        tbx_BaseDonnees.Text = oBuilder["database"].ToString();
+                        cbx_Security.SelectedIndex = -1;
+                        cbx_Security.Enabled = false;
+                        break;
+                    case 2:
                         tbx_Serveur.Text = oBuilder["server"].ToString();
                         tbx_BaseDonnees.Text = oBuilder["database"].ToString();
                         cbx_Security.SelectedIndex = -1;
@@ -241,7 +281,7 @@ namespace ModeConnecte
                 lv_TableView.Items.Clear();
 
                 dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "SELECT * FROM " + tbx_TablePrefix.Text + ".FOURNIS";
+                dbCommande.CommandText = "SELECT * FROM " + GetSchema() + "\"FOURNIS\"";
                 dbCommande.Connection = dbConnection;
 
                 try
@@ -359,7 +399,7 @@ namespace ModeConnecte
         /// <returns></returns>
         public bool RechercherFournisseur(ref DataTable table, int numfou)
         {
-            table = ExecuteReader("SELECT * FROM " + tbx_TablePrefix.Text + ".FOURNIS WHERE NUMFOU=" + numfou);
+            table = ExecuteReader("SELECT * FROM " + GetSchema() + "\"FOURNIS\" WHERE \"NUMFOU\"=" + numfou);
 
             if (table == null)
             {
@@ -408,7 +448,7 @@ namespace ModeConnecte
                 //{
                 //    ShowMessageBox("Requête SQL: " + ex.Message);
                 //}
-                DataTable table = ExecuteReader("SELECT * FROM " + tbx_TablePrefix.Text + ".FOURNIS WHERE NOMFOU='" + nomfou + "'");
+                DataTable table = ExecuteReader("SELECT * FROM " + GetSchema() + "\"FOURNIS\" WHERE \"NOMFOU\"='" + nomfou + "'");
                 GenericFournisseur f = new GenericFournisseur(table);
             }
 
@@ -422,7 +462,7 @@ namespace ModeConnecte
         /// <returns></returns>
         public bool RechercherListeFournisseurs(ref DataTable table)
         {
-            table = ExecuteReader("SELECT NOMFOU FROM " + tbx_TablePrefix.Text + ".FOURNIS");
+            table = ExecuteReader("SELECT \"NOMFOU\" FROM " + GetSchema() + "\"FOURNIS\"");
 
             return (table != null);
         }
@@ -438,7 +478,7 @@ namespace ModeConnecte
             if (CheckConnectionBase())
             {
                 dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "GetEntCom";
+                dbCommande.CommandText = "\"GetEntCom\"";
                 dbCommande.CommandType = CommandType.StoredProcedure;
                 dbCommande.Connection = dbConnection;
 
@@ -498,7 +538,7 @@ namespace ModeConnecte
             if (CheckConnectionBase())
             {
                 dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "INSERT INTO " + tbx_TablePrefix.Text + ".FOURNIS VALUES (" +
+                dbCommande.CommandText = "INSERT INTO " + GetSchema() + "\"FOURNIS\" VALUES (" +
                     unFournisseur.NumFou + "," +
                     "'" + IsNull(unFournisseur.NomFou) + "'," +
                     "'" + IsNull(unFournisseur.RueFou) + "'," +
@@ -540,14 +580,14 @@ namespace ModeConnecte
             if (CheckConnectionBase())
             {
                 dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "UPDATE " + tbx_TablePrefix.Text + ".FOURNIS SET " +
-                    "NOMFOU='" + IsNull(unFournisseur.NomFou) + "'," +
-                    "RUEFOU='" + IsNull(unFournisseur.RueFou) + "'," +
-                    "POSFOU='" + IsNull(unFournisseur.PosFou) + "'," +
-                    "VILFOU='" + IsNull(unFournisseur.VilFou) + "'," +
-                    "CONFOU='" + IsNull(unFournisseur.ConFou) + "'," +
-                    "SATISF=" + IsNull(unFournisseur.Satisf) +
-                    " WHERE NUMFOU=" + unFournisseur.NumFou;
+                dbCommande.CommandText = "UPDATE " + GetSchema() + "\"FOURNIS\" SET " +
+                    "\"NOMFOU\"='" + IsNull(unFournisseur.NomFou) + "'," +
+                    "\"RUEFOU\"='" + IsNull(unFournisseur.RueFou) + "'," +
+                    "\"POSFOU\"='" + IsNull(unFournisseur.PosFou) + "'," +
+                    "\"VILFOU\"='" + IsNull(unFournisseur.VilFou) + "'," +
+                    "\"CONFOU\"='" + IsNull(unFournisseur.ConFou) + "'," +
+                    "\"SATISF\"=" + IsNull(unFournisseur.Satisf) +
+                    " WHERE \"NUMFOU\"=" + unFournisseur.NumFou;
 
                 dbCommande.Connection = dbConnection;
 
@@ -582,7 +622,7 @@ namespace ModeConnecte
             if (CheckConnectionBase())
             {
                 dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "DELETE FROM " + tbx_TablePrefix.Text + ".FOURNIS WHERE NUMFOU=" + unFournisseur.NumFou;
+                dbCommande.CommandText = "DELETE FROM " + GetSchema() + "\"FOURNIS\" WHERE \"NUMFOU\"=" + unFournisseur.NumFou;
                 dbCommande.Connection = dbConnection;
 
                 try
