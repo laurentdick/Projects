@@ -231,13 +231,17 @@ namespace ModeConnecte
         /// <param name="e"></param>
         private void btn_Connect_Click(object sender, EventArgs e)
         {
+            DbConnectionStringBuilder oBuilder = new DbConnectionStringBuilder();
+            oBuilder.ConnectionString = connectionString;
+            oBuilder["Database"] = tbx_BaseDonnees.Text;
+
             try
             {
                 dbConnection = dbProviderFactory.CreateConnection();
                 dbConnection.StateChange += sqlConnect_StateChange;
 
                 // configuration connexion
-                dbConnection.ConnectionString = connectionString;
+                dbConnection.ConnectionString = oBuilder.ConnectionString;
 
                 // ouverture connexion
                 dbConnection.Open();
@@ -385,7 +389,10 @@ namespace ModeConnecte
                 }
                 finally
                 {
-                    dbDataReader.Close();
+                    if (dbDataReader != null)
+                    {
+                        dbDataReader.Close();
+                    }
                 }
             }
 
