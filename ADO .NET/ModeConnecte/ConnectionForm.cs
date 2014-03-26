@@ -81,9 +81,9 @@ namespace ModeConnecte
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        private string IsNull(string text)
+        private string IsNull(object obj)
         {
-            return (text.Length > 0 ? text : "null");
+            return ((obj.ToString().Length > 0) ? obj.ToString() : "null");
         }
 
         /// <summary>
@@ -109,6 +109,12 @@ namespace ModeConnecte
         /// <param name="e"></param>
         private void ConnectionForm_Shown(object sender, EventArgs e)
         {
+            int i = 0;
+            foreach (string name in new string[] { "NUMFOU", "NOMFOU", "RUEFOU", "POSFOU", "VILFOU", "CONFOU", "SATISF" })
+            {
+                lv_TableView.Columns[i++].Name = name;
+            }
+
             ts_MenuFournisseur.Tag = typeof(FournisseurForm);
             ts_MenuListeDesCommandes.Tag = typeof(CommandesForm);
 
@@ -170,27 +176,28 @@ namespace ModeConnecte
             {
                 oBuilder.ConnectionString = oConfig.ConnectionString;
 
-                switch (cbx_DriverSelect.SelectedIndex)
+                try
                 {
-                    case 0:
-                        tbx_Serveur.Text = oBuilder["Data Source"].ToString();
-                        tbx_BaseDonnees.Text = oBuilder["Initial Catalog"].ToString();
-                        cbx_Security.SelectedIndex = (oBuilder["Integrated Security"].ToString() == "False" ? 0 : 1);
-                        cbx_Security.SelectedIndex = 1;
-                        cbx_Security.Enabled = true;
-                        break;
-                    case 1:
-                        tbx_Serveur.Text = oBuilder["server"].ToString();
-                        tbx_BaseDonnees.Text = oBuilder["database"].ToString();
-                        cbx_Security.SelectedIndex = -1;
-                        cbx_Security.Enabled = false;
-                        break;
-                    case 2:
-                        tbx_Serveur.Text = oBuilder["server"].ToString();
-                        tbx_BaseDonnees.Text = oBuilder["database"].ToString();
-                        cbx_Security.SelectedIndex = -1;
-                        cbx_Security.Enabled = false;
-                        break;
+                    switch (cbx_DriverSelect.SelectedIndex)
+                    {
+                        case 0:
+                            tbx_Serveur.Text = oBuilder["Data Source"].ToString();
+                            tbx_BaseDonnees.Text = oBuilder["Initial Catalog"].ToString();
+                            cbx_Security.SelectedIndex = (oBuilder["Integrated Security"].ToString() == "False" ? 0 : 1);
+                            cbx_Security.SelectedIndex = 1;
+                            cbx_Security.Enabled = true;
+                            break;
+                        case 1:
+                        case 2:
+                            tbx_Serveur.Text = oBuilder["server"].ToString();
+                            tbx_BaseDonnees.Text = oBuilder["database"].ToString();
+                            cbx_Security.SelectedIndex = -1;
+                            cbx_Security.Enabled = false;
+                            break;
+                    }
+                }
+                catch (ArgumentException)
+                {
                 }
             }
         }
@@ -206,7 +213,7 @@ namespace ModeConnecte
                 !(btn_Connect.Enabled = (e.CurrentState == ConnectionState.Closed));
 
             cbx_DriverSelect.Enabled =
-            tbx_Serveur.Enabled = tbx_BaseDonnees.Enabled = cbx_Security.Enabled = btn_Connect.Enabled;
+            tbx_Serveur.Enabled = tbx_BaseDonnees.Enabled = btn_Connect.Enabled;
 
             switch (e.CurrentState)
             {
@@ -217,6 +224,7 @@ namespace ModeConnecte
                     tslbl_Status.Text = "Connecté: " + dbConnection.ConnectionString; AcceptButton = btn_Disconnect; lv_TableView.Focus(); break;
 
                 case ConnectionState.Closed:
+                    cbx_SelectedIndexChanged(sender, e);
                     tslbl_Status.Text = "Déconnecté"; AcceptButton = btn_Connect; cbx_DriverSelect.Focus(); break;
 
                 default:
@@ -278,41 +286,32 @@ namespace ModeConnecte
             Application.Exit();
         }
 
+        /// <summary>
+        /// Lit les enregistrement et les affiche dans la ListView
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void btn_Lire_Click(object sender, EventArgs e)
         {
             if (CheckConnectionBase())
             {
+                DataTable table = ExecuteReader("SELECT * FROM " + GetSchema() + "FOURNIS ORDER BY NUMFOU");
+
                 lv_TableView.Items.Clear();
 
-                dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "SELECT * FROM " + GetSchema() + "\"FOURNIS\"";
-                dbCommande.Connection = dbConnection;
-
-                try
+                if (table != null)
                 {
-                    dbDataReader = dbCommande.ExecuteReader();
-
-                    while (dbDataReader.Read())
+                    foreach (DataRow row in table.Rows)
                     {
-                        lv_TableView.Items.Add(
-                            new ListViewItem(
-                                new string[] {
-                                    GetValue(dbDataReader, "NUMFOU"),
-                                    GetValue(dbDataReader, "NOMFOU"),
-                                    GetValue(dbDataReader, "RUEFOU"),
-                                    GetValue(dbDataReader, "POSFOU"),
-                                    GetValue(dbDataReader, "VILFOU"),
-                                    GetValue(dbDataReader, "CONFOU"),
-                                    GetValue(dbDataReader, "SATISF"),
-                        }));
-                    }
+                        ListViewItem item = new ListViewItem(new string[table.Columns.Count]);
 
-                    dbDataReader.Close();
-                    lv_TableView.Focus();
-                }
-                catch (DbException ex)
-                {
-                    ShowMessageBox("Requête SQL: " + ex.Message);
+                        foreach (DataColumn column in table.Columns)
+                        {
+                            item.SubItems[lv_TableView.Columns.IndexOfKey(column.ColumnName)].Text = row[column.ColumnName].ToString();
+                        }
+
+                        lv_TableView.Items.Add(item);
+                    }
                 }
             }
         }
@@ -340,6 +339,35 @@ namespace ModeConnecte
                     ShowMessageBox("Exception : " + ex.Message, "Exception");
                 }
             }
+        }
+
+        private int ExecuteNonQuery(string command)
+        {
+            int result = -1;
+
+            if (CheckConnectionBase())
+            {
+                dbCommande = dbProviderFactory.CreateCommand();
+                dbCommande.CommandText = command;
+                dbCommande.Connection = dbConnection;
+
+                try
+                {
+                    result = dbCommande.ExecuteNonQuery();
+
+                    if (result >= 1)
+                    {
+                        btn_Lire_Click(this, null);
+                        ShowMessageBox("Opération effectuée\nNombre de ligne(s) affectée(s) :" + result, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                catch (DbException ex)
+                {
+                    ShowMessageBox("Requête SQL: " + ex.Message);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -406,7 +434,7 @@ namespace ModeConnecte
         /// <returns></returns>
         public bool RechercherFournisseur(ref DataTable table, int numfou)
         {
-            table = ExecuteReader("SELECT * FROM " + GetSchema() + "\"FOURNIS\" WHERE \"NUMFOU\"=" + numfou);
+            table = ExecuteReader("SELECT * FROM " + GetSchema() + "FOURNIS WHERE NUMFOU='" + numfou + "'");
 
             if (table == null)
             {
@@ -422,44 +450,11 @@ namespace ModeConnecte
         /// <param name="unFournisseur"></param>
         /// <param name="nomfou"></param>
         /// <returns></returns>
-        public bool RechercherFournisseur(ref Fournisseur unFournisseur, string nomfou)
+        public bool RechercherFournisseur(ref DataTable table, string nomfou)
         {
-            if (CheckConnectionBase())
-            {
-                //dbCommande = dbProviderFactory.CreateCommand();
-                //dbCommande.CommandText = "SELECT * FROM " + tbx_TablePrefix.Text + ".FOURNIS WHERE NOMFOU='" + nomfou + "'";
-                //dbCommande.Connection = dbConnection;
+            table = ExecuteReader("SELECT * FROM " + GetSchema() + "FOURNIS WHERE NOMFOU='" + nomfou + "'");
 
-                //try
-                //{
-                //    dbDataReader = dbCommande.ExecuteReader();
-
-                //    if (dbDataReader.Read())
-                //    {
-                //        Dictionary<string, object> values = new Dictionary<string, object>();
-                //        for (int i = 0; i < dbDataReader.FieldCount; i++)
-                //        {
-                //            values.Add(dbDataReader.GetName(i), dbDataReader.GetValue(i));
-                //        }
-
-                //        unFournisseur = new Fournisseur(values);
-                //    }
-                //    else
-                //    {
-                //        ShowMessageBox("Nom Fournisseur inexistant", "Erreur");
-                //    }
-
-                //    dbDataReader.Close();
-                //}
-                //catch (DbException ex)
-                //{
-                //    ShowMessageBox("Requête SQL: " + ex.Message);
-                //}
-                DataTable table = ExecuteReader("SELECT * FROM " + GetSchema() + "\"FOURNIS\" WHERE \"NOMFOU\"='" + nomfou + "'");
-                GenericFournisseur f = new GenericFournisseur(table);
-            }
-
-            return (unFournisseur != null);
+            return (table != null);
         }
 
         /// <summary>
@@ -469,7 +464,7 @@ namespace ModeConnecte
         /// <returns></returns>
         public bool RechercherListeFournisseurs(ref DataTable table)
         {
-            table = ExecuteReader("SELECT \"NOMFOU\" FROM " + GetSchema() + "\"FOURNIS\"");
+            table = ExecuteReader("SELECT NOMFOU FROM " + GetSchema() + "FOURNIS ORDER BY NUMFOU");
 
             return (table != null);
         }
@@ -480,12 +475,12 @@ namespace ModeConnecte
         /// <param name="listeCommandes"></param>
         /// <param name="unFournisseur"></param>
         /// <returns></returns>
-        public bool RechercherListeCommandes(ListView.ListViewItemCollection listeCommandes, Fournisseur unFournisseur)
+        public bool RechercherListeCommandes(ListView.ListViewItemCollection listeCommandes, DataTable table)
         {
             if (CheckConnectionBase())
             {
                 dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "\"GetEntCom\"";
+                dbCommande.CommandText = "GetEntCom";
                 dbCommande.CommandType = CommandType.StoredProcedure;
                 dbCommande.Connection = dbConnection;
 
@@ -495,7 +490,7 @@ namespace ModeConnecte
                 DbParameter numfouParam = dbCommande.CreateParameter();
                 numfouParam.Direction = ParameterDirection.Input;
                 numfouParam.DbType = DbType.Int16;
-                numfouParam.Value = (unFournisseur != null) ? unFournisseur.NumFou : (-1).ToString();
+                numfouParam.Value = (table != null) ? table.Rows[0]["NUMFOU"] : (-1).ToString();
                 numfouParam.ParameterName = "n";
                 dbCommande.Parameters.Add(numfouParam);
 
@@ -515,18 +510,23 @@ namespace ModeConnecte
                                 {
                                     (i++).ToString(),
                                     dbDataReader["NUMCOM"].ToString(),
-                                    DateTime.ParseExact(dbDataReader["DATECOM"].ToString(), "dd/MM/yyyy hh:mm:ss",  CultureInfo.InvariantCulture).ToString("d"),
+                                    DateTime.ParseExact(dbDataReader["DATCOM"].ToString(), "dd/MM/yyyy hh:mm:ss",  CultureInfo.InvariantCulture).ToString("d"),
                                     dbDataReader["OBSCOM"].ToString()
                                 }
                             )
                         );
                     }
-
-                    dbDataReader.Close();
                 }
                 catch (DbException ex)
                 {
                     ShowMessageBox("Erreur SQL : " + ex.Message);
+                }
+                finally
+                {
+                    if (dbDataReader != null)
+                    {
+                        dbDataReader.Close();
+                    }
                 }
             }
 
@@ -538,41 +538,17 @@ namespace ModeConnecte
         /// </summary>
         /// <param name="codefou"></param>
         /// <returns></returns>
-        public bool AjouterFournisseur(Fournisseur unFournisseur)
+        public bool AjouterFournisseur(DataTable tableFournisseur)
         {
-            int result = -1;
-
-            if (CheckConnectionBase())
-            {
-                dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "INSERT INTO " + GetSchema() + "\"FOURNIS\" VALUES (" +
-                    unFournisseur.NumFou + "," +
-                    "'" + IsNull(unFournisseur.NomFou) + "'," +
-                    "'" + IsNull(unFournisseur.RueFou) + "'," +
-                    "'" + IsNull(unFournisseur.PosFou) + "'," +
-                    "'" + IsNull(unFournisseur.VilFou) + "'," +
-                    "'" + IsNull(unFournisseur.ConFou) + "'," +
-                    IsNull(unFournisseur.Satisf) + ")";
-
-                dbCommande.Connection = dbConnection;
-
-                try
-                {
-                    result = dbCommande.ExecuteNonQuery();
-
-                    if (result >= 1)
-                    {
-                        btn_Lire_Click(this, null);
-                        ShowMessageBox("Modification effectuée\nNombre de ligne(s) affectée(s) :" + result, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-                catch (DbException ex)
-                {
-                    ShowMessageBox("Requête SQL: " + ex.Message);
-                }
-            }
-
-            return (result >= 1);
+            return (
+                ExecuteNonQuery("INSERT INTO " + GetSchema() + "FOURNIS VALUES (" +
+                    "'" + tableFournisseur.Rows[0]["NUMFOU"] + "'," +
+                    "'" + IsNull(tableFournisseur.Rows[0]["NOMFOU"]) + "'," +
+                    "'" + IsNull(tableFournisseur.Rows[0]["RUEFOU"]) + "'," +
+                    "'" + IsNull(tableFournisseur.Rows[0]["POSFOU"]) + "'," +
+                    "'" + IsNull(tableFournisseur.Rows[0]["VILFOU"]) + "'," +
+                    "'" + IsNull(tableFournisseur.Rows[0]["CONFOU"]) + "'," +
+                    "'" + IsNull(tableFournisseur.Rows[0]["SATISF"]) + "')") >= 1);
         }
 
         /// <summary>
@@ -580,75 +556,27 @@ namespace ModeConnecte
         /// </summary>
         /// <param name="codefou"></param>
         /// <returns></returns>
-        public bool ModifierFournisseur(Fournisseur unFournisseur)
+        public bool ModifierFournisseur(DataTable tableFournisseur)
         {
-            int result = -1;
-
-            if (CheckConnectionBase())
-            {
-                dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "UPDATE " + GetSchema() + "\"FOURNIS\" SET " +
-                    "\"NOMFOU\"='" + IsNull(unFournisseur.NomFou) + "'," +
-                    "\"RUEFOU\"='" + IsNull(unFournisseur.RueFou) + "'," +
-                    "\"POSFOU\"='" + IsNull(unFournisseur.PosFou) + "'," +
-                    "\"VILFOU\"='" + IsNull(unFournisseur.VilFou) + "'," +
-                    "\"CONFOU\"='" + IsNull(unFournisseur.ConFou) + "'," +
-                    "\"SATISF\"=" + IsNull(unFournisseur.Satisf) +
-                    " WHERE \"NUMFOU\"=" + unFournisseur.NumFou;
-
-                dbCommande.Connection = dbConnection;
-
-                try
-                {
-                    result = dbCommande.ExecuteNonQuery();
-
-                    if (result >= 1)
-                    {
-                        btn_Lire_Click(this, null);
-                        ShowMessageBox("Modification effectuée\nNombre de ligne(s) affectée(s) :" + result, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-                catch (DbException ex)
-                {
-                    ShowMessageBox("Requête SQL: " + ex.Message);
-                }
-            }
-
-            return (result >= 1);
+            return (
+                ExecuteNonQuery("UPDATE " + GetSchema() + "FOURNIS SET " +
+                    "NOMFOU='" + IsNull(tableFournisseur.Rows[0]["NOMFOU"]) + "'," +
+                    "RUEFOU='" + IsNull(tableFournisseur.Rows[0]["RUEFOU"]) + "'," +
+                    "POSFOU='" + IsNull(tableFournisseur.Rows[0]["POSFOU"]) + "'," +
+                    "VILFOU='" + IsNull(tableFournisseur.Rows[0]["VILFOU"]) + "'," +
+                    "CONFOU='" + IsNull(tableFournisseur.Rows[0]["CONFOU"]) + "'," +
+                    "SATISF='" + IsNull(tableFournisseur.Rows[0]["SATISF"]) + "'" +
+                    " WHERE NUMFOU='" + tableFournisseur.Rows[0]["NUMFOU"] + "'") >= 1);
         }
 
         /// <summary>
         /// Suppression d'un fournisseur par son code
         /// </summary>
-        /// <param name="codefou"></param>
+        /// <param name="tableFournisseur"></param>
         /// <returns></returns>
-        public bool SupprimerFournisseur(Fournisseur unFournisseur)
+        public bool SupprimerFournisseur(DataTable tableFournisseur)
         {
-            int result = -1;
-
-            if (CheckConnectionBase())
-            {
-                dbCommande = dbProviderFactory.CreateCommand();
-                dbCommande.CommandText = "DELETE FROM " + GetSchema() + "\"FOURNIS\" WHERE \"NUMFOU\"=" + unFournisseur.NumFou;
-                dbCommande.Connection = dbConnection;
-
-                try
-                {
-                    result = dbCommande.ExecuteNonQuery();
-
-                    if (result >= 1)
-                    {
-                        btn_Lire_Click(this, null);
-                        ShowMessageBox("Suppression effectuée\nNombre de ligne(s) affectée(s) :" + result, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-                catch (DbException ex)
-                {
-                    ShowMessageBox("Requête SQL: " + ex.Message);
-                }
-            }
-
-            return (result >= 1);
+            return (ExecuteNonQuery("DELETE FROM " + GetSchema() + "FOURNIS WHERE NUMFOU='" + tableFournisseur.Rows[0]["NUMFOU"] + "'") >= 1);
         }
     }
 }

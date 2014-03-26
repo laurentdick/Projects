@@ -30,13 +30,13 @@
         {
             this.btn_Connect = new System.Windows.Forms.Button();
             this.lv_TableView = new System.Windows.Forms.ListView();
-            this.columnNumFou = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnNomFou = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnRueFou = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnPostFou = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnVilleFou = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnConFou = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnSatisf = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.NUMFOU = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.NOMFOU = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.RUEFOU = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.POSFOU = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.VILFOU = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.CONFOU = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SATISF = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.statusBar = new System.Windows.Forms.StatusStrip();
             this.tslbl_Status = new System.Windows.Forms.ToolStripStatusLabel();
             this.lbl_Serveur = new System.Windows.Forms.Label();
@@ -73,18 +73,19 @@
             // 
             // lv_TableView
             // 
+            this.lv_TableView.AllowColumnReorder = true;
             this.lv_TableView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lv_TableView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.lv_TableView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnNumFou,
-            this.columnNomFou,
-            this.columnRueFou,
-            this.columnPostFou,
-            this.columnVilleFou,
-            this.columnConFou,
-            this.columnSatisf});
+            this.NUMFOU,
+            this.NOMFOU,
+            this.RUEFOU,
+            this.POSFOU,
+            this.VILFOU,
+            this.CONFOU,
+            this.SATISF});
             this.lv_TableView.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
             this.lv_TableView.FullRowSelect = true;
             this.lv_TableView.GridLines = true;
@@ -97,39 +98,39 @@
             this.lv_TableView.UseCompatibleStateImageBehavior = false;
             this.lv_TableView.View = System.Windows.Forms.View.Details;
             // 
-            // columnNumFou
+            // NUMFOU
             // 
-            this.columnNumFou.Text = "NUMFOU";
+            this.NUMFOU.Text = "NUMFOU";
             // 
-            // columnNomFou
+            // NOMFOU
             // 
-            this.columnNomFou.Text = "NOMFOU";
-            this.columnNomFou.Width = 150;
+            this.NOMFOU.Text = "NOMFOU";
+            this.NOMFOU.Width = 150;
             // 
-            // columnRueFou
+            // RUEFOU
             // 
-            this.columnRueFou.Text = "RUEFOU";
-            this.columnRueFou.Width = 150;
+            this.RUEFOU.Text = "RUEFOU";
+            this.RUEFOU.Width = 150;
             // 
-            // columnPostFou
+            // POSFOU
             // 
-            this.columnPostFou.Text = "POSTFOU";
-            this.columnPostFou.Width = 80;
+            this.POSFOU.Text = "POSFOU";
+            this.POSFOU.Width = 80;
             // 
-            // columnVilleFou
+            // VILFOU
             // 
-            this.columnVilleFou.Text = "VILLEFOU";
-            this.columnVilleFou.Width = 120;
+            this.VILFOU.Text = "VILFOU";
+            this.VILFOU.Width = 120;
             // 
-            // columnConFou
+            // CONFOU
             // 
-            this.columnConFou.Text = "CONFOU";
-            this.columnConFou.Width = 98;
+            this.CONFOU.Text = "CONFOU";
+            this.CONFOU.Width = 98;
             // 
-            // columnSatisf
+            // SATISF
             // 
-            this.columnSatisf.Text = "SATISF";
-            this.columnSatisf.Width = 55;
+            this.SATISF.Text = "SATISF";
+            this.SATISF.Width = 55;
             // 
             // statusBar
             // 
@@ -355,8 +356,8 @@
 
         private System.Windows.Forms.Button btn_Connect;
         private System.Windows.Forms.ListView lv_TableView;
-        private System.Windows.Forms.ColumnHeader columnNumFou;
-        private System.Windows.Forms.ColumnHeader columnNomFou;
+        private System.Windows.Forms.ColumnHeader NUMFOU;
+        private System.Windows.Forms.ColumnHeader NOMFOU;
         private System.Windows.Forms.StatusStrip statusBar;
         private System.Windows.Forms.ToolStripStatusLabel tslbl_Status;
         private System.Windows.Forms.Label lbl_Serveur;
@@ -365,9 +366,9 @@
         private System.Windows.Forms.TextBox tbx_BaseDonnees;
         private System.Windows.Forms.Button btn_Disconnect;
         private System.Windows.Forms.Button btn_Quitter;
-        private System.Windows.Forms.ColumnHeader columnRueFou;
-        private System.Windows.Forms.ColumnHeader columnPostFou;
-        private System.Windows.Forms.ColumnHeader columnVilleFou;
+        private System.Windows.Forms.ColumnHeader RUEFOU;
+        private System.Windows.Forms.ColumnHeader POSFOU;
+        private System.Windows.Forms.ColumnHeader VILFOU;
         private System.Windows.Forms.Label lbl_Security;
         private System.Windows.Forms.ComboBox cbx_Security;
         private System.Windows.Forms.Label lbl_TablePrefix;
@@ -377,8 +378,8 @@
         private System.Windows.Forms.ToolStripMenuItem rechercheToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ts_MenuFournisseur;
         private System.Windows.Forms.ToolStripMenuItem ts_MenuListeDesCommandes;
-        private System.Windows.Forms.ColumnHeader columnConFou;
-        private System.Windows.Forms.ColumnHeader columnSatisf;
+        private System.Windows.Forms.ColumnHeader CONFOU;
+        private System.Windows.Forms.ColumnHeader SATISF;
         private System.Windows.Forms.ComboBox cbx_DriverSelect;
         private System.Windows.Forms.Label lbl_Driver;
     }

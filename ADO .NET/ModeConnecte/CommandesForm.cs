@@ -46,14 +46,14 @@ namespace ModeConnecte
         {
             if (Owner is ConnectionForm)
             {
-                Fournisseur unFournisseur = null;
+                DataTable table = null;
 
                 if ((cbx_ListeFournisseurs.SelectedIndex > 0) &&
-                    (Owner as ConnectionForm).RechercherFournisseur(ref unFournisseur, cbx_ListeFournisseurs.SelectedItem.ToString()))
+                    (Owner as ConnectionForm).RechercherFournisseur(ref table, cbx_ListeFournisseurs.SelectedItem.ToString()))
                 {
                 }
 
-                (Owner as ConnectionForm).RechercherListeCommandes(lv_Commandes.Items, unFournisseur);
+                (Owner as ConnectionForm).RechercherListeCommandes(lv_Commandes.Items, table);
                 gbx_Commandes.Visible = true;
             }
         }

@@ -32,8 +32,7 @@ namespace ModeConnecte
         /// <summary>
         /// Instance d'un fournisseur sélectionné
         /// </summary>
-        private Fournisseur fournisseur;
-        private DataTable dataTable;
+        private DataTable dataTableFournisseur;
 
         /// <summary>
         /// Etat du formulaire
@@ -93,9 +92,9 @@ namespace ModeConnecte
                     Clear();
                     tbx_NUMFOU.Focus();
 
-                    if (dataTable != null)
+                    if (dataTableFournisseur != null)
                     {
-                        DoExchangeDatas(ref dataTable, ExchangeDirection.GET);
+                        DoExchangeDatas(ref dataTableFournisseur, ExchangeDirection.GET);
                     }
 
                     tbx_NUMFOU.Enabled = btn_Search.Visible = true;
@@ -159,7 +158,7 @@ namespace ModeConnecte
         }
 
         /// <summary>
-        /// Echange des données entre les TextBoxs et un objet Fournisseur
+        /// Echange des données entre les TextBoxs et un objet DataTable
         /// </summary>
         /// <param name="unFournisseur"></param>
         /// <param name="direction"></param>
@@ -182,32 +181,28 @@ namespace ModeConnecte
             }
         }
 
-        private void DoExchangeDatas(ref Fournisseur unFournisseur, ExchangeDirection datasDirection)
+        /// <summary>
+        /// Récupère les informations des TextBoxs et les range dans un nouveau DataTable
+        /// </summary>
+        /// <returns></returns>
+        private DataTable CreateDataTableFournisseur()
         {
-            switch (datasDirection)
-            {
-                // Fournisseur => TextBoxs
-                case ExchangeDirection.GET:
-                    tbx_NUMFOU.Text = unFournisseur.NumFou;
-                    tbx_NOMFOU.Text = unFournisseur.NomFou;
-                    tbx_RUEFOU.Text = unFournisseur.RueFou;
-                    tbx_POSFOU.Text = unFournisseur.PosFou;
-                    tbx_VILFOU.Text = unFournisseur.VilFou;
-                    tbx_CONFOU.Text = unFournisseur.ConFou;
-                    tbx_SATISF.Text = unFournisseur.Satisf;
-                    break;
+            DataTable table = new DataTable();
 
-                // TextBoxs => Fournisseur
-                case ExchangeDirection.SET:
-                    unFournisseur.NumFou = tbx_NUMFOU.Text;
-                    unFournisseur.NomFou = tbx_NOMFOU.Text;
-                    unFournisseur.RueFou = tbx_RUEFOU.Text;
-                    unFournisseur.PosFou = tbx_POSFOU.Text;
-                    unFournisseur.VilFou = tbx_VILFOU.Text;
-                    unFournisseur.ConFou = tbx_CONFOU.Text;
-                    unFournisseur.Satisf = tbx_SATISF.Text;
-                    break;
-            }
+            table.Columns.AddRange(new DataColumn[] {
+                            new DataColumn("NUMFOU"),
+                            new DataColumn("NOMFOU"),
+                            new DataColumn("RUEFOU"),
+                            new DataColumn("POSFOU"),
+                            new DataColumn("VILFOU"),
+                            new DataColumn("CONFOU"),
+                            new DataColumn("SATISF"),
+                        });
+
+            table.Rows.Add(table.NewRow());
+            DoExchangeDatas(ref table, ExchangeDirection.SET);
+
+            return table;
         }
 
         /// <summary>
@@ -237,10 +232,10 @@ namespace ModeConnecte
         {
             if ((Owner is ConnectionForm))
             {
-                if ((Owner as ConnectionForm).RechercherFournisseur(ref dataTable, Convert.ToInt16(tbx_NUMFOU.Text)))
+                if (btn_Modifier.Enabled = btn_Supprimer.Enabled =
+                    (Owner as ConnectionForm).RechercherFournisseur(ref dataTableFournisseur, Convert.ToInt16(tbx_NUMFOU.Text)))
                 {
                     InitViewMode(ViewMode.DISPLAY);
-                    btn_Modifier.Enabled = btn_Supprimer.Enabled = true;
                     viewMode = ViewMode.DISPLAY;
                 }
                 else
@@ -267,12 +262,12 @@ namespace ModeConnecte
                 // Ajout de l'enregistrement Fournisseur dans la base de données
                 case ViewMode.CREATE:
                     {
-                        Fournisseur unFournisseur = new Fournisseur();
-                        DoExchangeDatas(ref unFournisseur, ExchangeDirection.SET);
+                        DataTable table = CreateDataTableFournisseur();
 
-                        if ((Owner is ConnectionForm) && (Owner as ConnectionForm).AjouterFournisseur(unFournisseur))
+                        if ((Owner is ConnectionForm) &&
+                            (Owner as ConnectionForm).AjouterFournisseur(table))
                         {
-                            fournisseur = unFournisseur;
+                            dataTableFournisseur = table;
                             InitViewMode(ViewMode.DISPLAY);
                             viewMode = ViewMode.DISPLAY;
                             btn_Modifier.Enabled = btn_Supprimer.Enabled = true;
@@ -293,16 +288,12 @@ namespace ModeConnecte
         /// <param name="e"></param>
         private void btn_Supprimer_Click(object sender, EventArgs e)
         {
-            if ((Owner is ConnectionForm) &&
-                (Owner as ConnectionForm).ShowMessageBox("Voulez-vous supprimer ce fournisseur ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (((Owner is ConnectionForm) &&
+                (Owner as ConnectionForm).ShowMessageBox("Voulez-vous supprimer ce fournisseur ?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) &&
+                (btn_Modifier.Enabled = btn_Supprimer.Enabled = (Owner as ConnectionForm).SupprimerFournisseur(CreateDataTableFournisseur())))
             {
-                Fournisseur unFournisseur = new Fournisseur();
-                DoExchangeDatas(ref unFournisseur, ExchangeDirection.SET);
-
-                if ((Owner as ConnectionForm).SupprimerFournisseur(unFournisseur))
-                {
-                    fournisseur = null;
-                }
+                dataTableFournisseur.Dispose();
+                dataTableFournisseur = null;
             }
 
             InitViewMode(ViewMode.DISPLAY);
@@ -326,12 +317,13 @@ namespace ModeConnecte
                 // Validation des modifications
                 case ViewMode.MODIFY:
                     {
-                        DoExchangeDatas(ref fournisseur, ExchangeDirection.SET);
+                        DataTable table = CreateDataTableFournisseur();
 
-                        if ((Owner is ConnectionForm) && (Owner as ConnectionForm).ModifierFournisseur(fournisseur))
+                        if (btn_Modifier.Enabled = btn_Supprimer.Enabled =
+                            (Owner is ConnectionForm) && (Owner as ConnectionForm).ModifierFournisseur(table))
                         {
+                            dataTableFournisseur = table;
                             InitViewMode(ViewMode.DISPLAY);
-                            btn_Modifier.Enabled = btn_Supprimer.Enabled = true;
                             viewMode = ViewMode.DISPLAY;
                         }
                     }
