@@ -239,9 +239,15 @@ namespace ModeConnecte
 
                 // ouverture connexion
                 dbConnection.Open();
+
                 btn_Lire_Click(sender, e);
             }
             catch (DbException ex)
+            {
+                ShowMessageBox("Erreur de connection:" + ex.Message);
+                tslbl_Status.Text = "Echec de connection à : " + dbConnection.ConnectionString;
+            }
+            catch (ArgumentException ex)
             {
                 ShowMessageBox("Erreur de connection:" + ex.Message);
                 tslbl_Status.Text = "Echec de connection à : " + dbConnection.ConnectionString;
@@ -382,21 +388,34 @@ namespace ModeConnecte
                 {
                     dbDataReader = dbCommande.ExecuteReader();
 
+                    if (dbDataReader.HasRows)
+                    {
+                        // Création d'une nouvelle table
+                        table = new DataTable();
+
+                        // Récupération du schéma de table
+                        DataTable schema = dbDataReader.GetSchemaTable();
+
+                        // Initilisation des noms de colonnes et des types des champs
+                        for (int i = 0; i < dbDataReader.FieldCount; i++)
+                        {
+                            table.Columns.Add(dbDataReader.GetName(i), dbDataReader.GetFieldType(i));
+                        }
+
+                        //foreach (DataRow row in schema.Rows)
+                        //{
+                        //    table.Columns.Add(
+                        //        // Index  0 => ColumnName
+                        //        row.ItemArray[0].ToString(),
+                        //        // Index 12 => DataType
+                        //        Type.GetType(row.ItemArray[12].ToString())
+                        //    );
+                        //}
+                    }
+
                     // Récupération et ajout des lignes de données
                     while (dbDataReader.Read())
                     {
-                        if (table == null)
-                        {
-                            // Création d'une nouvelle table
-                            table = new DataTable();
-
-                            // Récupération des noms de colonnes et des types des champs
-                            for (int i = 0; i < dbDataReader.FieldCount; i++)
-                            {
-                                table.Columns.Add(dbDataReader.GetName(i), dbDataReader.GetFieldType(i));
-                            }
-                        }
-
                         DataRow row = table.NewRow();
                         object[] obj = new object[row.ItemArray.Length];
 
@@ -405,9 +424,9 @@ namespace ModeConnecte
                         table.Rows.Add(row);
                     }
                 }
-                catch (DbException ex)
+                catch (DbException e)
                 {
-                    ShowMessageBox("Requête SQL: " + ex.Message);
+                    ShowMessageBox("Requête SQL: " + e.Message);
                 }
                 finally
                 {
