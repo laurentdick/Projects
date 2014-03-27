@@ -3,10 +3,8 @@ using System.Data;
 using System.Data.Common;
 using System.Configuration;
 using System.Globalization;
-using System.Collections.Generic;
 using System.Windows.Forms;
 
-using ClassMetierLibrary;
 
 namespace ModeConnecte
 {
@@ -16,8 +14,6 @@ namespace ModeConnecte
         private DbConnection dbConnection;
         private DbCommand dbCommande;
         private DbDataReader dbDataReader;
-
-        private string factory;
         private string connectionString;
 
         /// <summary>
@@ -121,9 +117,22 @@ namespace ModeConnecte
             tbx_Schema.Text = "";
             cbx_DriverSelect.Items.Clear();
 
-            foreach (string dbDriverName in ConfigurationManager.AppSettings)
+            // Get the application configuration file.
+            //Configuration config =
+            //        ConfigurationManager.OpenExeConfiguration(
+            //        ConfigurationUserLevel.None);
+
+            // Get the conectionStrings section.
+            //ConnectionStringsSection csSection =
+            //    config.ConnectionStrings;
+
+            i = 0;
+            foreach (ConnectionStringSettings connectionString in ConfigurationManager.ConnectionStrings)
             {
-                cbx_DriverSelect.Items.Add(dbDriverName);
+                if (i++ > 1)
+                {
+                    cbx_DriverSelect.Items.Add(connectionString.Name);
+                }
             }
 
             cbx_DriverSelect.SelectedIndex = 0;
@@ -144,46 +153,75 @@ namespace ModeConnecte
         }
 
         /// <summary>
+        /// Chargement du pilote de base de données
+        /// </summary>
+        /// <param name="provider"></param>
+        /// <returns></returns>
+        private bool LoadProviderFactory(string provider)
+        {
+            bool result = false;
+
+            try
+            {
+                dbProviderFactory = DbProviderFactories.GetFactory(provider);
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                ShowMessageBox(ex.Message);
+            }
+
+            return result;
+        }
+        /// <summary>
         /// Changement de pilote de base de données
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void cbx_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string driver = cbx_DriverSelect.SelectedItem.ToString();
-
-            factory = ConfigurationManager.AppSettings[driver];
-            dbProviderFactory = DbProviderFactories.GetFactory(factory);
-
-            ConnectionStringSettings oConfig = ConfigurationManager.ConnectionStrings[driver];
-            DbConnectionStringBuilder oBuilder = new DbConnectionStringBuilder();
-
-            if (oConfig != null)
+            if (cbx_DriverSelect.SelectedIndex > -1)
             {
-                connectionString = oBuilder.ConnectionString = oConfig.ConnectionString;
+                ConnectionStringSettings oConfig = ConfigurationManager.ConnectionStrings[cbx_DriverSelect.SelectedItem.ToString()];
 
-                try
+                if (LoadProviderFactory(oConfig.ProviderName))
                 {
-                    switch (cbx_DriverSelect.SelectedIndex)
+                    DbConnectionStringBuilder oBuilder = new DbConnectionStringBuilder();
+
+                    connectionString = oBuilder.ConnectionString = oConfig.ConnectionString;
+
+                    try
                     {
-                        case 0:
-                            tbx_Serveur.Text = oBuilder["Data Source"].ToString();
-                            tbx_BaseDonnees.Text = oBuilder["Initial Catalog"].ToString();
-                            cbx_Security.SelectedIndex = (oBuilder["Integrated Security"].ToString() == "False" ? 0 : 1);
-                            cbx_Security.SelectedIndex = 1;
-                            cbx_Security.Enabled = true;
-                            break;
-                        case 1:
-                        case 2:
-                            tbx_Serveur.Text = oBuilder["server"].ToString();
-                            tbx_BaseDonnees.Text = oBuilder["database"].ToString();
-                            cbx_Security.SelectedIndex = -1;
-                            cbx_Security.Enabled = false;
-                            break;
+                        switch (cbx_DriverSelect.SelectedIndex)
+                        {
+                            case 0:
+                                tbx_Serveur.Text = oBuilder["Data Source"].ToString();
+                                tbx_BaseDonnees.Text = oBuilder["Initial Catalog"].ToString();
+                                cbx_Security.SelectedIndex = (oBuilder["Integrated Security"].ToString() == "False" ? 0 : 1);
+                                cbx_Security.SelectedIndex = 1;
+                                cbx_Security.Enabled = true;
+                                break;
+                            case 2:
+                                tbx_Serveur.Text = oBuilder["location"].ToString();
+                                tbx_BaseDonnees.Text = oBuilder["Data Source"].ToString();
+                                cbx_Security.SelectedIndex = -1;
+                                cbx_Security.Enabled = false;
+                                break;
+                            default:
+                                tbx_Serveur.Text = oBuilder["Server"].ToString();
+                                tbx_BaseDonnees.Text = oBuilder["Data Source"].ToString();
+                                cbx_Security.SelectedIndex = -1;
+                                cbx_Security.Enabled = false;
+                                break;
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
                     }
                 }
-                catch (ArgumentException)
+                else
                 {
+                    cbx_DriverSelect.SelectedIndex = 0;
                 }
             }
         }
@@ -227,7 +265,7 @@ namespace ModeConnecte
         {
             DbConnectionStringBuilder oBuilder = new DbConnectionStringBuilder();
             oBuilder.ConnectionString = connectionString;
-            oBuilder["Database"] = tbx_BaseDonnees.Text;
+            oBuilder["Data Source"] = tbx_BaseDonnees.Text;
 
             try
             {
@@ -426,7 +464,11 @@ namespace ModeConnecte
                 }
                 catch (DbException e)
                 {
-                    ShowMessageBox("Requête SQL: " + e.Message);
+                    ShowMessageBox(
+                        "Requête SQL: {" + command + "}" +
+                        Environment.NewLine +
+                        e.Message
+                    );
                 }
                 finally
                 {

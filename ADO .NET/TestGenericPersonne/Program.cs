@@ -11,9 +11,10 @@ namespace TestGenericPersonne
         {
 
             //TestGenericVisitor.Test();
-            TestGenericComposite.Test();
+            //TestGenericComposite.Test();
             //TestGenericSerializationXML.Test();
             //TestGenericState.Test();
+            TestDbProviderFactory.Test();
 
             WriteLine("Fin du programme.");
             Console.Read();
