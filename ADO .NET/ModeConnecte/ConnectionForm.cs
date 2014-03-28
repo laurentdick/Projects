@@ -4,17 +4,18 @@ using System.Data.Common;
 using System.Configuration;
 using System.Globalization;
 using System.Windows.Forms;
-
+using System.Data.Odbc;
+using System.Collections.Generic;
 
 namespace ModeConnecte
 {
     public partial class ConnectionForm : Form
     {
         private DbProviderFactory dbProviderFactory;
+        private DbConnectionStringBuilder connectionStringBuilder;
         private DbConnection dbConnection;
         private DbCommand dbCommande;
         private DbDataReader dbDataReader;
-        private string connectionString;
 
         /// <summary>
         /// Constructeur
@@ -117,15 +118,6 @@ namespace ModeConnecte
             tbx_Schema.Text = "";
             cbx_DriverSelect.Items.Clear();
 
-            // Get the application configuration file.
-            //Configuration config =
-            //        ConfigurationManager.OpenExeConfiguration(
-            //        ConfigurationUserLevel.None);
-
-            // Get the conectionStrings section.
-            //ConnectionStringsSection csSection =
-            //    config.ConnectionStrings;
-
             i = 0;
             foreach (ConnectionStringSettings connectionString in ConfigurationManager.ConnectionStrings)
             {
@@ -186,34 +178,42 @@ namespace ModeConnecte
 
                 if (LoadProviderFactory(oConfig.ProviderName))
                 {
-                    DbConnectionStringBuilder oBuilder = new DbConnectionStringBuilder();
-
-                    connectionString = oBuilder.ConnectionString = oConfig.ConnectionString;
+                    connectionStringBuilder = dbProviderFactory.CreateConnectionStringBuilder();
+                    connectionStringBuilder.ConnectionString = oConfig.ConnectionString;
 
                     try
                     {
                         switch (cbx_DriverSelect.SelectedIndex)
                         {
                             case 0:
-                                tbx_Serveur.Text = oBuilder["Data Source"].ToString();
-                                tbx_BaseDonnees.Text = oBuilder["Initial Catalog"].ToString();
-                                cbx_Security.SelectedIndex = (oBuilder["Integrated Security"].ToString() == "False" ? 0 : 1);
+                                tbx_Serveur.Text = connectionStringBuilder["Data Source"].ToString();
+                                tbx_BaseDonnees.Text = connectionStringBuilder["Initial Catalog"].ToString();
+                                cbx_Security.SelectedIndex = (connectionStringBuilder["Integrated Security"].ToString() == "False" ? 0 : 1);
                                 cbx_Security.SelectedIndex = 1;
                                 cbx_Security.Enabled = true;
                                 break;
-                            case 2:
-                                tbx_Serveur.Text = oBuilder["location"].ToString();
-                                tbx_BaseDonnees.Text = oBuilder["Data Source"].ToString();
+                            case 3:
+                                tbx_Serveur.Text = connectionStringBuilder["location"].ToString();
+                                tbx_BaseDonnees.Text = connectionStringBuilder["Database"].ToString();
+                                cbx_Security.SelectedIndex = -1;
+                                cbx_Security.Enabled = false;
+                                break;
+                            case 6:
+                                tbx_Serveur.Text = connectionStringBuilder["Data Source"].ToString();
+                                tbx_BaseDonnees.Text = connectionStringBuilder["location"].ToString();
                                 cbx_Security.SelectedIndex = -1;
                                 cbx_Security.Enabled = false;
                                 break;
                             default:
-                                tbx_Serveur.Text = oBuilder["Server"].ToString();
-                                tbx_BaseDonnees.Text = oBuilder["Data Source"].ToString();
+                                tbx_Serveur.Text = connectionStringBuilder["Server"].ToString();
+                                tbx_BaseDonnees.Text = connectionStringBuilder["Database"].ToString();
                                 cbx_Security.SelectedIndex = -1;
                                 cbx_Security.Enabled = false;
                                 break;
                         }
+                    }
+                    catch (KeyNotFoundException)
+                    {
                     }
                     catch (ArgumentException)
                     {
@@ -263,9 +263,7 @@ namespace ModeConnecte
         /// <param name="e"></param>
         private void btn_Connect_Click(object sender, EventArgs e)
         {
-            DbConnectionStringBuilder oBuilder = new DbConnectionStringBuilder();
-            oBuilder.ConnectionString = connectionString;
-            oBuilder["Data Source"] = tbx_BaseDonnees.Text;
+//            connectionStringBuilder["Database"] = tbx_BaseDonnees.Text;
 
             try
             {
@@ -273,19 +271,14 @@ namespace ModeConnecte
                 dbConnection.StateChange += sqlConnect_StateChange;
 
                 // configuration connexion
-                dbConnection.ConnectionString = oBuilder.ConnectionString;
+                dbConnection.ConnectionString = connectionStringBuilder.ConnectionString;
 
                 // ouverture connexion
                 dbConnection.Open();
 
                 btn_Lire_Click(sender, e);
             }
-            catch (DbException ex)
-            {
-                ShowMessageBox("Erreur de connection:" + ex.Message);
-                tslbl_Status.Text = "Echec de connection à : " + dbConnection.ConnectionString;
-            }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
                 ShowMessageBox("Erreur de connection:" + ex.Message);
                 tslbl_Status.Text = "Echec de connection à : " + dbConnection.ConnectionString;
@@ -439,16 +432,6 @@ namespace ModeConnecte
                         {
                             table.Columns.Add(dbDataReader.GetName(i), dbDataReader.GetFieldType(i));
                         }
-
-                        //foreach (DataRow row in schema.Rows)
-                        //{
-                        //    table.Columns.Add(
-                        //        // Index  0 => ColumnName
-                        //        row.ItemArray[0].ToString(),
-                        //        // Index 12 => DataType
-                        //        Type.GetType(row.ItemArray[12].ToString())
-                        //    );
-                        //}
                     }
 
                     // Récupération et ajout des lignes de données
@@ -465,7 +448,7 @@ namespace ModeConnecte
                 catch (DbException e)
                 {
                     ShowMessageBox(
-                        "Requête SQL: {" + command + "}" +
+                        "Requête SQL: {" + dbCommande.CommandText + "}" +
                         Environment.NewLine +
                         e.Message
                     );
@@ -622,9 +605,13 @@ namespace ModeConnecte
                         );
                     }
                 }
-                catch (DbException ex)
+                catch (DbException e)
                 {
-                    ShowMessageBox("Erreur SQL : " + ex.Message);
+                    ShowMessageBox(
+                        "Requête SQL: {" + dbCommande.CommandText + "}" +
+                        Environment.NewLine +
+                        e.Message
+                    );
                 }
                 finally
                 {
