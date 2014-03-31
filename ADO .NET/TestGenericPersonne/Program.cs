@@ -14,7 +14,8 @@ namespace TestGenericPersonne
             //TestGenericComposite.Test();
             //TestGenericSerializationXML.Test();
             //TestGenericState.Test();
-            TestDbProviderFactory.Test();
+            //TestDbProviderFactory.Test();
+            TestOLE.Test();
 
             WriteLine("Fin du programme.");
             Console.Read();

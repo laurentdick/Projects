@@ -3,9 +3,8 @@ using System.Data;
 using System.Data.Common;
 using System.Configuration;
 using System.Globalization;
-using System.Windows.Forms;
-using System.Data.Odbc;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace ModeConnecte
 {
@@ -165,6 +164,7 @@ namespace ModeConnecte
 
             return result;
         }
+
         /// <summary>
         /// Changement de pilote de base de données
         /// </summary>
